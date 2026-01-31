@@ -1,20 +1,28 @@
 services:
-  ur5_sim:
+  ur5_sim_gui:
     build:
         context: ..
-        dockerfile: docker/Dockerfile
+        dockerfile: Dockerfile
     image: ur5_ros2_pick_place:jazzy
-    container_name: ur5_sim
-
-    user: "${UID}:${GID}"
-
-    network_mode: host
+    container_name: ur5_sim_gui
+    network_mode: "host"
+    ipc: "host"
+    shm_size: 1g
     environment:
-      - DISPLAY=${DISPLAY}
       - QT_X11_NO_MITSHM=1
       - ROS_DOMAIN_ID=0
+      - ROS_DISTRO=jazzy
+      - DISPLAY=${DISPLAY:-:0}
+      - XAUTHORITY=${XAUTH:-${HOME}/.Xauthority}
+      - XDG_RUNTIME_DIR=${RUNDIR:-/run/user/1000}
     volumes:
       - ..:/ws:rw
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-    stdin_open: true
+      - ${XAUTH:-${HOME}/.Xauthority}:${XAUTH:-${HOME}/.Xauthority}:rw
+      - ${RUNDIR:-/run/user/1000}:${RUNDIR:-/run/user/1000}:rw
+    devices:
+      - /dev/dri:/dev/dri
+    group_add:
+      - video
     tty: true
+    stdin_open: true

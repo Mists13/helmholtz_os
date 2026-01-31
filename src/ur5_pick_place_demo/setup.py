@@ -10,6 +10,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name + '/launch', ['launch/bringup.launch.py']),
+        ('share/' + package_name + '/urdf', ['ur5_pick_place_demo/ur5_simple.urdf']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -25,6 +27,8 @@ setup(
     entry_points={
         'console_scripts': [
             'pick_place_demo = ur5_pick_place_demo.pick_place_demo:main',
+            'republish_joint_states = ur5_pick_place_demo.joint_republisher:main',
+            'scene_object_publisher = ur5_pick_place_demo.scene_object_publisher:main',
         ],
     },
 )

@@ -19,7 +19,7 @@ class PickPlaceDemo(Node):
         )
         
         # Control loop frequency (Hz)
-        self.loop_frequency = 10
+        self.loop_frequency = 45
         self.timer = self.create_timer(
             1.0 / self.loop_frequency,
             self.control_loop
@@ -27,7 +27,7 @@ class PickPlaceDemo(Node):
         
         # Demo state
         self.step = 0
-        self.max_steps = 50
+        self.max_steps = 480
         self.get_logger().info('Control loop initialized')
     
     def control_loop(self):
@@ -51,23 +51,36 @@ class PickPlaceDemo(Node):
                 f.write(f'Completed at step {self.step}\n')
             self.timer.cancel()
     
+
     def get_target_positions(self):
-        """Generate target joint positions for UR5 (6 joints)"""
-        # Sinusoidal motion for smooth changes
-        amplitude = 0.5
-        progress = self.step / self.max_steps
-        
-        # Simple sinusoidal pattern for each joint
-        positions = [
-            amplitude * __import__('math').sin(progress * 4 * 3.14159),  # Joint 1
-            amplitude * __import__('math').cos(progress * 4 * 3.14159),  # Joint 2
-            amplitude * __import__('math').sin(progress * 2 * 3.14159),  # Joint 3
-            amplitude * __import__('math').cos(progress * 3 * 3.14159),  # Joint 4
-            amplitude * __import__('math').sin(progress * 5 * 3.14159),  # Joint 5
-            amplitude * __import__('math').cos(progress * 2 * 3.14159),  # Joint 6
+
+        poses = [
+            [0.0, -1.3, 1.6, -1.9, -1.57, 0.0],
+            [0.0, -1.1, 1.9, -2.3, -1.57, 0.0],
+            [0.0, -1.3, 1.6, -1.9, -1.57, 0.0],
+            [1.2, -1.3, 1.6, -1.9, -1.57, 0.0],
+            [1.2, -1.1, 1.9, -2.3, -1.57, 0.0],
+            [1.2, -1.3, 1.6, -1.9, -1.57, 0.0],
         ]
-        
-        return positions
+
+        steps_per_motion = 80
+
+        segment = self.step // steps_per_motion
+        i0 = segment % len(poses)
+        i1 = (i0 + 1) % len(poses)
+
+        alpha = (self.step % steps_per_motion) / steps_per_motion
+
+        p0 = poses[i0]
+        p1 = poses[i1]
+
+        target = [
+            (1.0 - alpha) * a + alpha * b
+            for a, b in zip(p0, p1)
+        ]
+
+        return target
+
 
 def main():
     rclpy.init()
