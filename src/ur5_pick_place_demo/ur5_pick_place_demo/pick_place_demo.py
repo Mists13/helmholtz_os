@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import rclpy
+from std_msgs.msg import Bool
 from rclpy.node import Node
 from std_msgs.msg import Float64MultiArray
 import time
@@ -17,7 +18,9 @@ class PickPlaceDemo(Node):
             '/forward_position_controller/commands',
             10
         )
-        
+
+        self.grasp_pub = self.create_publisher(Bool, '/grasped', 10)
+
         # Control loop frequency (Hz)
         self.loop_frequency = 45
         self.timer = self.create_timer(
@@ -27,13 +30,24 @@ class PickPlaceDemo(Node):
         
         # Demo state
         self.step = 0
-        self.max_steps = 480
+        self.max_steps = 1000
         self.get_logger().info('Control loop initialized')
     
     def control_loop(self):
         """Main control loop for robot arm"""
         self.step += 1
         
+        msg_grasp = Bool()
+
+        # grasp when we are in the "pick" segment
+        # segment 1 = at pick position
+        steps_per_motion = 80
+        segment = self.step // steps_per_motion
+
+        msg_grasp.data = (segment >= 1 and segment < 4)
+
+        self.grasp_pub.publish(msg_grasp)
+
         # Example: Move joints in a changing pattern
         joint_positions = self.get_target_positions()
         
@@ -55,12 +69,12 @@ class PickPlaceDemo(Node):
     def get_target_positions(self):
 
         poses = [
-            [0.0, -1.3, 1.6, -1.9, -1.57, 0.0],
-            [0.0, -1.1, 1.9, -2.3, -1.57, 0.0],
-            [0.0, -1.3, 1.6, -1.9, -1.57, 0.0],
-            [1.2, -1.3, 1.6, -1.9, -1.57, 0.0],
-            [1.2, -1.1, 1.9, -2.3, -1.57, 0.0],
-            [1.2, -1.3, 1.6, -1.9, -1.57, 0.0],
+            [0.0, 0.5, 1.2, 0.0, 1.4, 0.0],
+            [0.0, 0.76, 1.48, 0.0, 0.90, 0.0],
+            [0.0, 0.6, 1.48, 0.0, 1.06, 0.0],
+            [1.2, 0.6, 1.48, 0.0, 1.06, 0.0],
+            [1.2, 0.76, 1.48, 0.0, 0.90, 0.0],
+            [1.2, 0.6, 1.48, 0.0, 1.06, 0.0],
         ]
 
         steps_per_motion = 80

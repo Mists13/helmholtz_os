@@ -2,7 +2,8 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 import os
 from ament_index_python.packages import get_package_share_directory
-
+from launch_ros.parameter_descriptions import ParameterValue
+from launch.substitutions import Command
 
 def generate_launch_description():
     pkg_share = get_package_share_directory('ur5_pick_place_demo')
@@ -13,8 +14,14 @@ def generate_launch_description():
         executable='robot_state_publisher',
         name='robot_state_publisher',
         output='screen',
-        arguments=[urdf_path],
+        parameters=[{
+            'robot_description': ParameterValue(
+                Command(['cat ', urdf_path]),
+                value_type=str
+            )
+        }],
     )
+
 
     republisher_node = Node(
         package='ur5_pick_place_demo',

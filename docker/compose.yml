@@ -2,7 +2,7 @@ services:
   ur5_sim_gui:
     build:
         context: ..
-        dockerfile: Dockerfile
+        dockerfile: docker/Dockerfile
     image: ur5_ros2_pick_place:jazzy
     container_name: ur5_sim_gui
     network_mode: "host"

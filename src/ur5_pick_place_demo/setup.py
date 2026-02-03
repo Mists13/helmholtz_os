@@ -1,4 +1,9 @@
 from setuptools import find_packages, setup
+import os
+
+# print(f"DEBUG: CWD={os.getcwd()}")
+# print(f"DEBUG: listed resource={os.listdir('resource')}")
+# raise RuntimeError(f"DEBUG: CWD={os.getcwd()}, listed resource={os.listdir('resource')}")
 
 package_name = 'ur5_pick_place_demo'
 
